@@ -1,15 +1,16 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const Portafolio = require('../models/portafolio.js');
-const DetallePortafolio = require('../models/detallePortafolio');
-const { verificaToken } = require('../middlewares/autenticacion.js')
+const DetalleProducto = require('../models/detalleProducto');
+//const { verificaToken } = require('../middlewares/autenticacion.js')
 const { string } = require('yargs');
 const { json } = require('body-parser');
+//const detalleProducto = require('../models/detalleProducto');
 
 const app = express();
 
 
-app.get('/portafolio', [verificaToken], function(req, res) {
+app.get('/productos1', function(req, res) {
 
     let idUsuario = req.usuario.id;
 
@@ -44,11 +45,9 @@ app.get('/portafolio', [verificaToken], function(req, res) {
 
 
 //obtiene el portafolio y detalle de un usuario
-app.get('/detallePortafolio', function(req, res) {
+app.get('/productos', function(req, res) {
 
-    let idUsuario = req.query.idUsuario;
-
-    Portafolio.find({ usuario: idUsuario }, (err, portafolioBD) => {
+    DetalleProducto.find((err, productosDB) => {
 
         if (err) {
             return res.status(400).json({
@@ -57,63 +56,49 @@ app.get('/detallePortafolio', function(req, res) {
             });
         }
 
-        if (Object.entries(portafolioBD).length == 0) {
+        if (Object.entries(productosDB).length == 0) {
             return res.status(400).json({
                 ok: false,
-                err: 'Este usuario no tiene portafolio'
+                err: 'No existen productos'
             });
         }
-        // let resultado = JSON.stringify(portafolioBD);
 
-
-
-        const portafolio = portafolioBD.map(function(p) {
-            return p._id;
+        res.json({
+            ok: true,
+            productos: productosDB
         });
-
-
-        DetallePortafolio.find({ portafolio: portafolio[0] }, (err, detallePortafolioBD) => {
-
-            if (err) {
-                return res.status(400).json({
-                    ok: false,
-                    err
-                });
-            }
-
-            if (Object.entries(portafolioBD).length == 0) {
-                return res.status(400).json({
-                    ok: false,
-                    err: 'Este portafolio no tiene detalle'
-                });
-            }
-
-            res.json({
-                ok: true,
-                portafolio: portafolioBD,
-                detallePortafolio: detallePortafolioBD
-            });
-        });
-
     });
+
 });
 
 
 
-app.post('/portafolio', function(req, res) {
+
+app.post('/producto', function(req, res) {
     console.log(req.body);
     let body = req.body;
 
     //Creo un objeto del modelo Usuario y le asigno los valores enviados desde el cliente
-    let portafolio = new Portafolio({
+    let producto = new DetalleProducto({
+
+        nombre: body.nombre,
         descripcion: body.descripcion,
-        img: body.img,
+        fecha: body.fecha,
+        link: body.link,
+        imgPrincipal: body.imgPrincipal,
+        imgDetalle: body.imgDetalle,
         estado: body.estado,
-        usuario: body.usuario,
+        precioCosto: body.precioCosto,
+        precioVenta: body.precioVenta,
+        utilidad: body.utilidad,
+        plazoFinanciamiento: body.plazoFinanciamiento
+
     });
 
+    console.log(producto);
+
     //Asi se envia  aguardar a base de datos el modelo completo
-    portafolio.save((err, portafolioBD) => {
+    producto.save((err, productoBD) => {
 
         //Si hay un error en la insercion, devuelvo un bat request con el error 400
         if (err) {
@@ -125,16 +110,23 @@ app.post('/portafolio', function(req, res) {
 
 
         //aqui personalizo lo que deseo devolover despues de la insercion
-        let portafolioCreado = {
-            descripcion: portafolioBD.descripcion,
-            img: portafolioBD.img,
-            estado: portafolioBD.estado,
-            usuario: portafolioBD.usuario,
+        let productoCreado = {
+            nombre: productoBD.nombre,
+            descripcion: productoBD.descripcion,
+            fecha: productoBD.fecha,
+            link: productoBD.link,
+            imgPrincipal: productoBD.imgPrincipal,
+            imgDetalle: productoBD.imgDetalle,
+            estado: productoBD.estado,
+            precioCosto: productoBD.precioCosto,
+            precioVenta: productoBD.precioVenta,
+            utilidad: productoBD.utilidad,
+            plazoFinanciamiento: productoBD.plazoFinanciamiento
         }
 
         res.json({
             ok: true,
-            usuario: portafolioCreado
+            usuario: productoCreado
         });
 
     });

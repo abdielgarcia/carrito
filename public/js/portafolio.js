@@ -5,12 +5,13 @@ var portafolio = function() {
     const profesion = document.getElementById('profesion');
     const contenedorDetallePortafolio = document.getElementById('contenedor-detalle-portafolio');
     const contenedorModals = document.getElementById('contenedor-modals');
+    ListarDetallePortafolio();
 
     function ListarPortafolio() {
 
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
-        xhr.open("GET", '/portafolio', true);
+        xhr.open("GET", '/productos', true);
 
         //Send the proper header information along with the request
         xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
@@ -31,11 +32,11 @@ var portafolio = function() {
         xhr.send();
     }
 
-    function ListarDetallePortafolio(idPortafolio) {
+    function ListarDetallePortafolio() {
 
         var xhr = new XMLHttpRequest();
         xhr.responseType = 'json';
-        let url = `/detallePortafolio?idUsuario=${idPortafolio}`;
+        let url = `/productos`;
         xhr.open("GET", url, true);
 
         //Send the proper header information along with the request
@@ -44,7 +45,7 @@ var portafolio = function() {
         xhr.onreadystatechange = function() { // Call a function when the state changes.
             if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
 
-                InsertarDetallePortafolio(xhr.response.detallePortafolio);
+                InsertarDetallePortafolio(xhr.response.productos);
             }
         }
         xhr.send();
@@ -64,13 +65,13 @@ var portafolio = function() {
                             <div class="portfolio-item-caption d-flex align-items-center justify-content-center h-100 w-100">
                                 <div class="portfolio-item-caption-content text-center text-white"><i class="fas fa-plus fa-3x"></i></div>
                             </div>
-                            <img class="img-fluid" src=${detalle.img} alt="" title="" />
+                            <img class="img-fluid imgPrincipal" src=${detalle.imgPrincipal} alt="" title="" />
                             <figcaption class="p-4 card-img-bottom">
                             <h2 class="h5 font-weight-bold mb-2 font-italic">${detalle.nombre}</h2>
-                            <p class="mb-0 text-small text-muted font-italic">${detalle.descripcion}</p>
+                            <p class="mb-0 text-small text-dark font-weight-bold"> ₡ ${new Intl.NumberFormat().format(detalle.precioVenta)}</p>
                           </figcaption>
-                        </div>
-                  
+                        </div>  
+                        
                         `
             contenedorDetallePortafolio.appendChild(div);
 
@@ -103,7 +104,7 @@ var portafolio = function() {
                                                     <div class="divider-custom-line"></div>
                                                 </div>
                                                 <!-- Portfolio Modal - Image-->
-                                                <a title="${detalle.nombre}" href=${detalle.link}  target="_blank"> <img class="img-fluid rounded mb-5" src=${detalle.img} alt="" /></a>
+                                                <a title="${detalle.nombre}" href=${detalle.link}  target="_blank"> <img class="img-fluid rounded mb-5" src=${detalle.imgPrincipal} alt="" /></a>
                                                 <!-- Portfolio Modal - Text-->
                                                 <p class="mb-5">${detalle.descripcion}</p>
                                                 <button class="btn btn-primary" data-dismiss="modal">
